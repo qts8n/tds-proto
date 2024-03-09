@@ -22,19 +22,21 @@ impl Plugin for DespawnPlugin {
 }
 
 
-fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransform)>) {
+fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransform), With<Health>>) {
     for (entity, transform) in query.iter() {
         let distance = transform.translation().distance(Vec3::ZERO);
 
         // Entity is far away from the camera's viewport.
         if distance > DESPAWN_DISTANCE {
-            commands.entity(entity).despawn_recursive();
+            if let Some(entity_commands) = commands.get_entity(entity) {
+                entity_commands.despawn_recursive();
+            }
         }
     }
 }
 
 
-fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health)>) {
+fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health), With<Health>>) {
     for (entity, health) in query.iter() {
         if health.value > 0. {
             continue;
