@@ -1,11 +1,12 @@
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 use crate::asset_loader::SceneAssets;
-use crate::movement::{Velocity, Acceleration, Translation, MovingObjectBundle};
+use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
-use crate::collision_detection::{Collider, CollisionDamage};
+use crate::collision_detection::CollisionDamage;
 
 const SPACESHIP_SPAWN: Vec3 = Vec3::new(0., 0., -20.);
 const SPACESHIP_SPEED: f32 = 25.;
@@ -17,7 +18,7 @@ const SPACESHIP_COLLISION_DAMAGE: f32 = 100.;
 
 const MISSILE_SPEED: f32 = 50.;
 const MISSILE_FORWARD_SCALAR: f32 = 7.5;
-const MISSILE_RADIUS: f32 = 1.;
+const MISSILE_RADIUS: f32 = 0.5;
 const MISSILE_COOLDOWN: f32 = 0.2;
 const MISSILE_SCALE: Vec3 = Vec3::new(5., 5., 5.);
 const MISSILE_HEALTH: f32 = 1.;
@@ -66,12 +67,16 @@ impl Plugin for SpaceshipPlugin {
 
 
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
-    let spaceship_transform = Translation::new(SPACESHIP_SPAWN).get_transform();
+    let spaceship_transform = DirVector::new(SPACESHIP_SPAWN).get_transform();
     commands.spawn((
         MovingObjectBundle {
-            velocity: Velocity::new(Vec3::ZERO),
-            acceleration: Acceleration::new(Vec3::ZERO),
-            collider: Collider::new(SPACESHIP_RADIUS),
+            velocity: Velocity::linear(Vec3::ZERO),
+            rigid_body: RigidBody::KinematicPositionBased,
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
+            collider: Collider::ball(SPACESHIP_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.get_random_spaceship(),
                 transform: spaceship_transform,
@@ -86,11 +91,11 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
 
 
 fn spaceship_movement_controls(
-    mut query: Query<(&mut Transform, &mut Velocity), With<Spaceship>>,
+    mut query: Query<&mut Transform, With<Spaceship>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
     time: Res<Time>,
 ) {
-    let Ok((mut transform, mut velocity)) = query.get_single_mut() else { return };
+    let Ok(mut transform) = query.get_single_mut() else { return };
 
     let mut rotation = 0.;
     if keyboard_input.pressed(KeyCode::KeyD) {
@@ -110,16 +115,17 @@ fn spaceship_movement_controls(
 
     let mut movement = 0.;
     if keyboard_input.pressed(KeyCode::KeyS) {
-        movement -= SPACESHIP_SPEED;
+        movement -= SPACESHIP_SPEED * time.delta_seconds();
     }
     if keyboard_input.pressed(KeyCode::KeyW) {
-        movement += SPACESHIP_SPEED;
+        movement += SPACESHIP_SPEED * time.delta_seconds();
     }
 
     // Modify transform based on the processed input
     // NOTE: negative forward cause of the model direction
     //       that is set by Poly Pizza
-    velocity.value = -transform.forward() * movement;
+    let translation = -transform.clone().forward() * movement;
+    transform.translation += translation;
     transform.rotate_y(rotation);
     transform.rotate_local_z(roll);
 }
@@ -143,13 +149,17 @@ fn spaceship_weapon_controls(
     }
 
     let Ok(transform) = query.get_single() else { return };
-    let missile_transform = Translation::new(transform.translation - transform.forward() * MISSILE_FORWARD_SCALAR)
+    let missile_transform = DirVector::new(transform.translation - transform.forward() * MISSILE_FORWARD_SCALAR)
         .get_transform().with_scale(MISSILE_SCALE);
     commands.spawn((
         MovingObjectBundle {
-            velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
-            acceleration: Acceleration::new(Vec3::ZERO),
-            collider: Collider::new(MISSILE_RADIUS),
+            velocity: Velocity::linear(-transform.forward() * MISSILE_SPEED),
+            rigid_body: RigidBody::Dynamic,
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
+            collider: Collider::ball(MISSILE_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.get_random_bullet(),
                 transform: missile_transform,

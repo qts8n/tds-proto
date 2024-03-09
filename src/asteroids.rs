@@ -1,15 +1,15 @@
 use std::ops::Range;
 
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
 use crate::schedule::InGameSet;
 use crate::asset_loader::SceneAssets;
-use crate::movement::{Velocity, Acceleration, Translation, MovingObjectBundle};
+use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
-use crate::collision_detection::{Collider, CollisionDamage};
+use crate::collision_detection::CollisionDamage;
 
 const VELOCITY_SCALAR: f32 = 5.;
-const ACCELERATION_SCALAR: f32 = 1.;
 
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
@@ -65,15 +65,18 @@ fn spawn_asteroid(
     if !spawn_timer.timer.just_finished() {
         return;
     }
-    let translation = Translation::rng_range(SPAWN_RANGE_X, SPAWN_RANGE_Z);
-    let velocity = Velocity::rng_unit(Some(VELOCITY_SCALAR));
-    let acceleration = Acceleration::rng_unit(Some(ACCELERATION_SCALAR));
+    let translation = DirVector::rng_range(SPAWN_RANGE_X, SPAWN_RANGE_Z);
+    let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
 
     commands.spawn((
         MovingObjectBundle {
-            velocity,
-            acceleration,
-            collider: Collider::new(RADIUS),
+            velocity: Velocity::linear(velocity.value),
+            rigid_body: RigidBody::Dynamic,
+            collider: Collider::ball(RADIUS),
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
             model: SceneBundle {
                 scene: scene_assets.get_random_asteroid(),
                 transform: translation.get_transform(),

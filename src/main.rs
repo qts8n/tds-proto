@@ -13,6 +13,7 @@ mod collision_detection;
 mod despawn_routine;
 
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
 use schedule::SchedulePlugin;
 use state::StatePlugin;
@@ -21,7 +22,6 @@ use debug::DebugPlugin;
 use field::FieldPlugin;
 use camera::CameraPlugin;
 use menu::MenuPlugin;
-use movement::MovementPlugin;
 use asteroids::AsteroidPlugin;
 use spaceship::SpaceshipPlugin;
 use collision_detection::CollisionDetectionPlugin;
@@ -33,6 +33,8 @@ fn main() {
         // -- Bevy configuration
         // Built-ins
         .add_plugins(DefaultPlugins)
+        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
+        .add_plugins(RapierDebugRenderPlugin::default())
         // -- Custom user configuration
         // Misc
         .add_plugins(SchedulePlugin)
@@ -43,7 +45,6 @@ fn main() {
         .add_plugins(FieldPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(MenuPlugin)
-        .add_plugins(MovementPlugin)
         // Game logic
         .add_plugins(AsteroidPlugin)
         .add_plugins(SpaceshipPlugin)
