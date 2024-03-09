@@ -3,6 +3,10 @@ name = "tds-proto"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+# v This is now used by default, if not provided
+strip = "debuginfo"
+
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1
