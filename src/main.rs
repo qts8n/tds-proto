@@ -4,6 +4,7 @@ mod asset_loader;
 mod debug;
 mod field;
 mod camera;
+mod menu;
 mod movement;
 mod health;
 mod asteroids;
@@ -19,6 +20,7 @@ use asset_loader::AssetLoaderPlugin;
 use debug::DebugPlugin;
 use field::FieldPlugin;
 use camera::CameraPlugin;
+use menu::MenuPlugin;
 use movement::MovementPlugin;
 use asteroids::AsteroidPlugin;
 use spaceship::SpaceshipPlugin;
@@ -40,6 +42,7 @@ fn main() {
         // World defaults
         .add_plugins(FieldPlugin)
         .add_plugins(CameraPlugin)
+        .add_plugins(MenuPlugin)
         .add_plugins(MovementPlugin)
         // Game logic
         .add_plugins(AsteroidPlugin)

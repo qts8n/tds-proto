@@ -17,6 +17,9 @@ const BULLET_MODEL_PATH: &'static [&'static str] = &[
     "Bullet-1.glb#Scene0",
 ];
 
+const PLAY_ICON_PATH: &'static str = "Right.png";
+const EXIT_ICON_PATH: &'static str = "Exit.png";
+
 
 #[derive(Resource, Default, Debug)]
 pub struct SceneAssets {
@@ -41,6 +44,13 @@ impl SceneAssets {
 }
 
 
+#[derive(Resource, Default, Debug)]
+pub struct ImageAssets {
+    pub play_icon: Handle<Image>,
+    pub exit_icon: Handle<Image>,
+}
+
+
 pub struct AssetLoaderPlugin;
 
 
@@ -48,15 +58,27 @@ impl Plugin for AssetLoaderPlugin {
     fn build(&self, app: &mut App) {
         app
             .init_resource::<SceneAssets>()
-            .add_systems(Startup, load_assets);
+            .init_resource::<ImageAssets>()
+            .add_systems(Startup, (
+                load_scene_assets,
+                load_image_assets,
+            ));
     }
 }
 
 
-fn load_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<AssetServer>) {
+fn load_scene_assets(mut scene_assets: ResMut<SceneAssets>, asset_server: Res<AssetServer>) {
     *scene_assets = SceneAssets {
         spaceship: SPACESHIP_MODEL_PATHS.iter().map(|path| asset_server.load(path.to_string())).collect(),
         asteroid: ASTEROID_MODEL_PATH.iter().map(|path| asset_server.load(path.to_string())).collect(),
         bullet: BULLET_MODEL_PATH.iter().map(|path| asset_server.load(path.to_string())).collect(),
-    }
+    };
+}
+
+
+fn load_image_assets(mut image_assets: ResMut<ImageAssets>, asset_server: Res<AssetServer>) {
+    *image_assets = ImageAssets {
+        play_icon: asset_server.load(PLAY_ICON_PATH),
+        exit_icon: asset_server.load(EXIT_ICON_PATH),
+    };
 }

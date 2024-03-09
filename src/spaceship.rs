@@ -54,13 +54,13 @@ impl Plugin for SpaceshipPlugin {
     fn build(&self, app: &mut App) {
         app
             .insert_resource(SpaceshipMissileCooldownTimer::new(MISSILE_COOLDOWN))
-            .add_systems(PostStartup, spawn_spaceship)
             .add_systems(Update, (
                 spaceship_movement_controls,
                 spaceship_weapon_controls,
             ).chain().in_set(InGameSet::UserInput))
             .add_systems(Update, check_spaceship.in_set(InGameSet::EntityUpdates))
-            .add_systems(OnEnter(GameState::GameOver), spawn_spaceship);
+            .add_systems(OnExit(GameState::Menu), spawn_spaceship)
+            .add_systems(OnEnter(GameState::InGame), spawn_spaceship);
     }
 }
 
