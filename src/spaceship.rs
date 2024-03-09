@@ -67,16 +67,21 @@ impl Plugin for SpaceshipPlugin {
 
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     let spaceship_transform = Translation::new(SPACESHIP_SPAWN).get_transform();
-    commands.spawn((MovingObjectBundle {
-        velocity: Velocity::new(Vec3::ZERO),
-        acceleration: Acceleration::new(Vec3::ZERO),
-        collider: Collider::new(SPACESHIP_RADIUS),
-        model: SceneBundle {
-            scene: scene_assets.spaceship.clone(),
-            transform: spaceship_transform,
-            ..default()
+    commands.spawn((
+        MovingObjectBundle {
+            velocity: Velocity::new(Vec3::ZERO),
+            acceleration: Acceleration::new(Vec3::ZERO),
+            collider: Collider::new(SPACESHIP_RADIUS),
+            model: SceneBundle {
+                scene: scene_assets.get_random_spaceship(),
+                transform: spaceship_transform,
+                ..default()
+            },
         },
-    }, Spaceship, Health::new(SPACESHIP_HEALTH), CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE)));
+        Spaceship,
+        Health::new(SPACESHIP_HEALTH),
+        CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE),
+    ));
 }
 
 
@@ -140,16 +145,21 @@ fn spaceship_weapon_controls(
     let Ok(transform) = query.get_single() else { return };
     let missile_transform = Translation::new(transform.translation - transform.forward() * MISSILE_FORWARD_SCALAR)
         .get_transform().with_scale(MISSILE_SCALE);
-    commands.spawn((MovingObjectBundle {
-        velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
-        acceleration: Acceleration::new(Vec3::ZERO),
-        collider: Collider::new(MISSILE_RADIUS),
-        model: SceneBundle {
-            scene: scene_assets.bullet.clone(),
-            transform: missile_transform,
-            ..default()
-        }
-    }, SpaceshipMissile, Health::new(MISSILE_HEALTH), CollisionDamage::new(MISSILE_COLLISION_DAMAGE)));
+    commands.spawn((
+        MovingObjectBundle {
+            velocity: Velocity::new(-transform.forward() * MISSILE_SPEED),
+            acceleration: Acceleration::new(Vec3::ZERO),
+            collider: Collider::new(MISSILE_RADIUS),
+            model: SceneBundle {
+                scene: scene_assets.get_random_bullet(),
+                transform: missile_transform,
+                ..default()
+            }
+        },
+        SpaceshipMissile,
+        Health::new(MISSILE_HEALTH),
+        CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
+    ));
 }
 
 

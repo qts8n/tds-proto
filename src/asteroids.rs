@@ -69,16 +69,21 @@ fn spawn_asteroid(
     let velocity = Velocity::rng_unit(Some(VELOCITY_SCALAR));
     let acceleration = Acceleration::rng_unit(Some(ACCELERATION_SCALAR));
 
-    commands.spawn((MovingObjectBundle {
-        velocity,
-        acceleration,
-        collider: Collider::new(RADIUS),
-        model: SceneBundle {
-            scene: scene_assets.asteroid.clone(),
-            transform: translation.get_transform(),
-            ..default()
+    commands.spawn((
+        MovingObjectBundle {
+            velocity,
+            acceleration,
+            collider: Collider::new(RADIUS),
+            model: SceneBundle {
+                scene: scene_assets.get_random_asteroid(),
+                transform: translation.get_transform(),
+                ..default()
+            },
         },
-    }, Asteroid, Health::new(HEALTH), CollisionDamage::new(COLLISION_DAMAGE)));
+        Asteroid,
+        Health::new(HEALTH),
+        CollisionDamage::new(COLLISION_DAMAGE),
+    ));
 }
 
 
