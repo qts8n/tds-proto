@@ -14,11 +14,11 @@ const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
 const SPACESHIP_RADIUS: f32 = 5.;
 const SPACESHIP_HEALTH: f32 = 100.;
-const SPACESHIP_COLLISION_DAMAGE: f32 = 100.;
+const SPACESHIP_COLLISION_DAMAGE: f32 = 70.;
 
 const MISSILE_SPEED: f32 = 50.;
-const MISSILE_FORWARD_SCALAR: f32 = 7.5;
-const MISSILE_RADIUS: f32 = 0.5;
+const MISSILE_FORWARD_SCALAR: f32 = 8.;
+const MISSILE_RADIUS: f32 = 0.2;
 const MISSILE_COOLDOWN: f32 = 0.2;
 const MISSILE_SCALE: Vec3 = Vec3::new(5., 5., 5.);
 const MISSILE_HEALTH: f32 = 1.;
@@ -75,7 +75,7 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
             gravity_scale: GravityScale(0.),
             sleeping: Sleeping::disabled(),
             ccd: Ccd::enabled(),
-            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
+            active_events: ActiveEvents::COLLISION_EVENTS,
             collider: Collider::ball(SPACESHIP_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.get_random_spaceship(),
@@ -158,7 +158,7 @@ fn spaceship_weapon_controls(
             gravity_scale: GravityScale(0.),
             sleeping: Sleeping::disabled(),
             ccd: Ccd::enabled(),
-            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
+            active_events: ActiveEvents::COLLISION_EVENTS,
             collider: Collider::ball(MISSILE_RADIUS),
             model: SceneBundle {
                 scene: scene_assets.get_random_bullet(),

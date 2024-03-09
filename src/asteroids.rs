@@ -9,7 +9,7 @@ use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
 use crate::collision_detection::CollisionDamage;
 
-const VELOCITY_SCALAR: f32 = 5.;
+const VELOCITY_SCALAR: f32 = 10.;
 
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
@@ -76,7 +76,7 @@ fn spawn_asteroid(
             gravity_scale: GravityScale(0.),
             sleeping: Sleeping::disabled(),
             ccd: Ccd::enabled(),
-            active_events: ActiveEvents::CONTACT_FORCE_EVENTS,
+            active_events: ActiveEvents::COLLISION_EVENTS,
             model: SceneBundle {
                 scene: scene_assets.get_random_asteroid(),
                 transform: translation.get_transform(),
