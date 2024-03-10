@@ -1,15 +1,15 @@
 use std::ops::Range;
 
 use bevy::prelude::*;
+use bevy_rapier3d::prelude::*;
 
 use crate::schedule::InGameSet;
 use crate::asset_loader::SceneAssets;
-use crate::movement::{Velocity, Acceleration, Translation, MovingObjectBundle};
+use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
-use crate::collision_detection::{Collider, CollisionDamage};
+use crate::collision_detection::CollisionDamage;
 
-const VELOCITY_SCALAR: f32 = 5.;
-const ACCELERATION_SCALAR: f32 = 1.;
+const VELOCITY_SCALAR: f32 = 10.;
 
 const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
 const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
@@ -23,6 +23,10 @@ const COLLISION_DAMAGE: f32 = 35.;
 
 #[derive(Component, Debug)]
 pub struct Asteroid;
+
+
+#[derive(Component, Debug)]
+pub struct AsteroidParticle;
 
 
 #[derive(Resource, Default, Debug)]
@@ -50,6 +54,7 @@ impl Plugin for AsteroidPlugin {
             .add_systems(Update, (
                 spawn_asteroid,
                 rotate_asteroids,
+                explode_dead_asteroids,
             ).in_set(InGameSet::EntityUpdates));
     }
 }
@@ -65,20 +70,19 @@ fn spawn_asteroid(
     if !spawn_timer.timer.just_finished() {
         return;
     }
-    let translation = Translation::rng_range(SPAWN_RANGE_X, SPAWN_RANGE_Z);
-    let velocity = Velocity::rng_unit(Some(VELOCITY_SCALAR));
-    let acceleration = Acceleration::rng_unit(Some(ACCELERATION_SCALAR));
+    let translation = DirVector::rng_range(SPAWN_RANGE_X, SPAWN_RANGE_Z);
+    let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
 
     commands.spawn((
         MovingObjectBundle {
-            velocity,
-            acceleration,
-            collider: Collider::new(RADIUS),
-            model: SceneBundle {
-                scene: scene_assets.get_random_asteroid(),
-                transform: translation.get_transform(),
-                ..default()
-            },
+            velocity: Velocity::linear(velocity.value),
+            collider: Collider::ball(RADIUS),
+            ..default()
+        },
+        SceneBundle {
+            scene: scene_assets.get_random_asteroid(),
+            transform: translation.get_transform(),
+            ..default()
         },
         Asteroid,
         Health::new(HEALTH),
@@ -87,8 +91,40 @@ fn spawn_asteroid(
 }
 
 
-fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
+fn rotate_asteroids(mut query: Query<&mut Transform, Or<(With<Asteroid>, With<AsteroidParticle>)>>, time: Res<Time>) {
     for mut transform in query.iter_mut() {
         transform.rotate_local_z(ROTATION_SPEED * time.delta_seconds());
+    }
+}
+
+
+fn explode_dead_asteroids(
+    mut commands: Commands,
+    query: Query<(Entity, &Health), With<Asteroid>>,
+    children_query: Query<&Children>,
+    mesh_query: Query<&Handle<Mesh>>,
+) {
+    for (entity, health) in query.iter() {
+        if health.value > 0. {
+            continue;
+        }
+        for child in children_query.iter_descendants(entity) {
+            if mesh_query.get(child).is_err() {
+                continue;  // Not interested in meshless entities
+            }
+            let Some(mut child_commands) = commands.get_entity(child) else { continue };
+            let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
+            child_commands.remove_parent_in_place();
+            child_commands.insert((
+                MovingObjectBundle {
+                    velocity: Velocity::linear(velocity.value),
+                    collider: Collider::ball(RADIUS / 10.),
+                    ..default()
+                },
+                AsteroidParticle,
+            ));
+        }
+        let Some(asteroid_commands) = commands.get_entity(entity) else { continue };
+        asteroid_commands.despawn_recursive();
     }
 }
