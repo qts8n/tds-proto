@@ -7,12 +7,13 @@ use crate::asset_loader::SceneAssets;
 use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
 use crate::collision_detection::CollisionDamage;
+use crate::despawn_routine::DisposableEntity;
 
 const SPACESHIP_SPAWN: Vec3 = Vec3::new(0., 0., -20.);
 const SPACESHIP_SPEED: f32 = 25.;
 const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
-const SPACESHIP_RADIUS: f32 = 5.;
+const SPACESHIP_RADIUS: f32 = 4.;
 const SPACESHIP_HEALTH: f32 = 100.;
 const SPACESHIP_COLLISION_DAMAGE: f32 = 70.;
 
@@ -61,7 +62,7 @@ impl Plugin for SpaceshipPlugin {
             ).chain().in_set(InGameSet::UserInput))
             .add_systems(Update, check_spaceship.in_set(InGameSet::EntityUpdates))
             .add_systems(OnExit(GameState::Menu), spawn_spaceship)
-            .add_systems(OnEnter(GameState::InGame), spawn_spaceship);
+            .add_systems(OnEnter(GameState::GameOver), spawn_spaceship);
     }
 }
 
@@ -83,6 +84,7 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         Spaceship,
         Health::new(SPACESHIP_HEALTH),
         CollisionDamage::new(SPACESHIP_COLLISION_DAMAGE),
+        DisposableEntity,
     ));
 }
 
@@ -162,6 +164,7 @@ fn spaceship_weapon_controls(
         SpaceshipMissile,
         Health::new(MISSILE_HEALTH),
         CollisionDamage::new(MISSILE_COLLISION_DAMAGE),
+        DisposableEntity,
     ));
 }
 

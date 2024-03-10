@@ -8,6 +8,7 @@ use crate::asset_loader::SceneAssets;
 use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
 use crate::collision_detection::CollisionDamage;
+use crate::despawn_routine::DisposableEntity;
 
 const VELOCITY_SCALAR: f32 = 10.;
 
@@ -122,6 +123,7 @@ fn explode_dead_asteroids(
                     ..default()
                 },
                 AsteroidParticle,
+                DisposableEntity,
             ));
         }
         let Some(asteroid_commands) = commands.get_entity(entity) else { continue };

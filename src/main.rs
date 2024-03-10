@@ -1,5 +1,6 @@
 mod schedule;
 mod state;
+mod physics;
 mod asset_loader;
 mod debug;
 mod field;
@@ -13,10 +14,10 @@ mod collision_detection;
 mod despawn_routine;
 
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::*;
 
 use schedule::SchedulePlugin;
 use state::StatePlugin;
+use physics::PhysicsPlugin;
 use asset_loader::AssetLoaderPlugin;
 use debug::DebugPlugin;
 use field::FieldPlugin;
@@ -33,12 +34,11 @@ fn main() {
         // -- Bevy configuration
         // Built-ins
         .add_plugins(DefaultPlugins)
-        .add_plugins(RapierPhysicsPlugin::<NoUserData>::default())
-        .add_plugins(RapierDebugRenderPlugin::default())
         // -- Custom user configuration
         // Misc
         .add_plugins(SchedulePlugin)
         .add_plugins(StatePlugin)
+        .add_plugins(PhysicsPlugin)
         .add_plugins(AssetLoaderPlugin)
         .add_plugins(DebugPlugin)
         // World defaults
