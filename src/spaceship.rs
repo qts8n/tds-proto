@@ -72,16 +72,13 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         MovingObjectBundle {
             velocity: Velocity::linear(Vec3::ZERO),
             rigid_body: RigidBody::KinematicPositionBased,
-            gravity_scale: GravityScale(0.),
-            sleeping: Sleeping::disabled(),
-            ccd: Ccd::enabled(),
-            active_events: ActiveEvents::COLLISION_EVENTS,
             collider: Collider::ball(SPACESHIP_RADIUS),
-            model: SceneBundle {
-                scene: scene_assets.get_random_spaceship(),
-                transform: spaceship_transform,
-                ..default()
-            },
+            ..default()
+        },
+        SceneBundle {
+            scene: scene_assets.get_random_spaceship(),
+            transform: spaceship_transform,
+            ..default()
         },
         Spaceship,
         Health::new(SPACESHIP_HEALTH),
@@ -154,17 +151,13 @@ fn spaceship_weapon_controls(
     commands.spawn((
         MovingObjectBundle {
             velocity: Velocity::linear(-transform.forward() * MISSILE_SPEED),
-            rigid_body: RigidBody::Dynamic,
-            gravity_scale: GravityScale(0.),
-            sleeping: Sleeping::disabled(),
-            ccd: Ccd::enabled(),
-            active_events: ActiveEvents::COLLISION_EVENTS,
             collider: Collider::ball(MISSILE_RADIUS),
-            model: SceneBundle {
-                scene: scene_assets.get_random_bullet(),
-                transform: missile_transform,
-                ..default()
-            }
+            ..default()
+        },
+        SceneBundle {
+            scene: scene_assets.get_random_bullet(),
+            transform: missile_transform,
+            ..default()
         },
         SpaceshipMissile,
         Health::new(MISSILE_HEALTH),

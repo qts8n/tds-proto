@@ -3,6 +3,7 @@ use bevy::prelude::*;
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 use crate::health::Health;
+use crate::asteroids::Asteroid;
 
 const DESPAWN_DISTANCE: f32 = 100.;
 
@@ -36,7 +37,7 @@ fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &Glob
 }
 
 
-fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health), With<Health>>) {
+fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health), (With<Health>, Without<Asteroid>)>) {
     for (entity, health) in query.iter() {
         if health.value > 0. {
             continue;

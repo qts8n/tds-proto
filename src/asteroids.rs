@@ -25,6 +25,10 @@ const COLLISION_DAMAGE: f32 = 35.;
 pub struct Asteroid;
 
 
+#[derive(Component, Debug)]
+pub struct AsteroidParticle;
+
+
 #[derive(Resource, Default, Debug)]
 pub struct SpawnTimer {
     timer: Timer,
@@ -50,6 +54,7 @@ impl Plugin for AsteroidPlugin {
             .add_systems(Update, (
                 spawn_asteroid,
                 rotate_asteroids,
+                explode_dead_asteroids,
             ).in_set(InGameSet::EntityUpdates));
     }
 }
@@ -71,17 +76,13 @@ fn spawn_asteroid(
     commands.spawn((
         MovingObjectBundle {
             velocity: Velocity::linear(velocity.value),
-            rigid_body: RigidBody::Dynamic,
             collider: Collider::ball(RADIUS),
-            gravity_scale: GravityScale(0.),
-            sleeping: Sleeping::disabled(),
-            ccd: Ccd::enabled(),
-            active_events: ActiveEvents::COLLISION_EVENTS,
-            model: SceneBundle {
-                scene: scene_assets.get_random_asteroid(),
-                transform: translation.get_transform(),
-                ..default()
-            },
+            ..default()
+        },
+        SceneBundle {
+            scene: scene_assets.get_random_asteroid(),
+            transform: translation.get_transform(),
+            ..default()
         },
         Asteroid,
         Health::new(HEALTH),
@@ -93,5 +94,34 @@ fn spawn_asteroid(
 fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
     for mut transform in query.iter_mut() {
         transform.rotate_local_z(ROTATION_SPEED * time.delta_seconds());
+    }
+}
+
+
+fn explode_dead_asteroids(
+    mut commands: Commands,
+    query: Query<(Entity, &Health), With<Asteroid>>,
+    children_query: Query<&Children>,
+) {
+    for (entity, health) in query.iter() {
+        if health.value > 0. {
+            continue;
+        }
+        let Some(mut asteroid_commands) = commands.get_entity(entity) else { continue };
+        asteroid_commands.remove::<(MovingObjectBundle, Health, CollisionDamage, Asteroid)>();
+        for child in children_query.iter_descendants(entity) {
+            let Some(mut child_commands) = commands.get_entity(child) else { continue };
+            let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
+            child_commands.insert((
+                Velocity::linear(velocity.value),
+                RigidBody::Dynamic,
+                // MovingObjectBundle {
+                //     velocity: Velocity::linear(velocity.value),
+                //     collider: Collider::,
+                //     ..default()
+                // },
+                AsteroidParticle,
+            ));
+        }
     }
 }

@@ -39,7 +39,7 @@ impl DirVector {
 }
 
 
-#[derive(Bundle, Default)]
+#[derive(Bundle)]
 pub struct MovingObjectBundle {
     pub velocity: Velocity,
     pub rigid_body: RigidBody,
@@ -48,6 +48,23 @@ pub struct MovingObjectBundle {
     pub sleeping: Sleeping,
     pub ccd: Ccd,
     pub active_events: ActiveEvents,
-    pub model: SceneBundle,
+    // pub model: SceneBundle,
+}
+
+
+impl Default for MovingObjectBundle {
+    fn default() -> Self {
+        Self {
+            // Custom default values
+            rigid_body: RigidBody::Dynamic,
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            // This is the part you usually want to change
+            velocity: Velocity::default(),
+            collider: Collider::default(),
+        }
+    }
 }
 
