@@ -3,9 +3,12 @@ use bevy::prelude::*;
 use crate::schedule::InGameSet;
 use crate::state::GameState;
 use crate::health::Health;
-use crate::asteroids::Asteroid;
 
 const DESPAWN_DISTANCE: f32 = 100.;
+
+
+#[derive(Component, Debug)]
+pub struct DisposableEntity;
 
 
 pub struct DespawnPlugin;
@@ -23,7 +26,7 @@ impl Plugin for DespawnPlugin {
 }
 
 
-fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransform), With<Health>>) {
+fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &GlobalTransform), With<DisposableEntity>>) {
     for (entity, transform) in query.iter() {
         let distance = transform.translation().distance(Vec3::ZERO);
 
@@ -37,7 +40,7 @@ fn despawn_far_away_entities(mut commands: Commands, query: Query<(Entity, &Glob
 }
 
 
-fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health), (With<Health>, Without<Asteroid>)>) {
+fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health), (With<Health>, With<DisposableEntity>)>) {
     for (entity, health) in query.iter() {
         if health.value > 0. {
             continue;
@@ -50,7 +53,7 @@ fn despawn_dead_entities(mut commands: Commands, query: Query<(Entity, &Health),
 }
 
 
-fn despawn_all_entities(mut commands: Commands, query: Query<Entity, With<Health>>) {
+fn despawn_all_entities(mut commands: Commands, query: Query<Entity, Or<(With<Health>, With<DisposableEntity>)>>) {
     for entity in query.iter() {
         if let Some(entity_commands) = commands.get_entity(entity) {
             entity_commands.despawn_recursive();
