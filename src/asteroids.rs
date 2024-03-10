@@ -91,7 +91,7 @@ fn spawn_asteroid(
 }
 
 
-fn rotate_asteroids(mut query: Query<&mut Transform, With<Asteroid>>, time: Res<Time>) {
+fn rotate_asteroids(mut query: Query<&mut Transform, Or<(With<Asteroid>, With<AsteroidParticle>)>>, time: Res<Time>) {
     for mut transform in query.iter_mut() {
         transform.rotate_local_z(ROTATION_SPEED * time.delta_seconds());
     }
@@ -107,21 +107,22 @@ fn explode_dead_asteroids(
         if health.value > 0. {
             continue;
         }
-        let Some(mut asteroid_commands) = commands.get_entity(entity) else { continue };
-        asteroid_commands.remove::<(MovingObjectBundle, Health, CollisionDamage, Asteroid)>();
+        // let Some(mut asteroid_commands) = commands.get_entity(entity) else { continue };
+        // asteroid_commands.remove::<(MovingObjectBundle, Health, CollisionDamage, Asteroid)>();
         for child in children_query.iter_descendants(entity) {
             let Some(mut child_commands) = commands.get_entity(child) else { continue };
             let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
+            child_commands.remove_parent_in_place();
             child_commands.insert((
-                Velocity::linear(velocity.value),
-                RigidBody::Dynamic,
-                // MovingObjectBundle {
-                //     velocity: Velocity::linear(velocity.value),
-                //     collider: Collider::,
-                //     ..default()
-                // },
+                MovingObjectBundle {
+                    velocity: Velocity::linear(velocity.value),
+                    collider: Collider::ball(RADIUS / 10.),
+                    ..default()
+                },
                 AsteroidParticle,
             ));
         }
+        let Some(asteroid_commands) = commands.get_entity(entity) else { continue };
+        asteroid_commands.despawn_recursive();
     }
 }
