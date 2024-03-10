@@ -3,8 +3,7 @@ use bevy::prelude::*;
 const STARTING_BG_COLOR: Color = Color::rgb(0.1, 0., 0.15);
 
 const STARTING_LIGHT_COLOR: Color = Color::rgb(1., 1., 1.);
-
-const STARTING_LIGHT_BRIGHTNESS: f32 = 500.;
+const STARTING_LIGHT_BRIGHTNESS: f32 = 1000.;
 
 
 pub struct FieldPlugin;
