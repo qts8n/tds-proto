@@ -8,6 +8,7 @@ mod camera;
 mod menu;
 mod movement;
 mod health;
+mod hud;
 mod asteroids;
 mod spaceship;
 mod collision_detection;
@@ -23,6 +24,7 @@ use debug::DebugPlugin;
 use field::FieldPlugin;
 use camera::CameraPlugin;
 use menu::MenuPlugin;
+use hud::HudPlugin;
 use asteroids::AsteroidPlugin;
 use spaceship::SpaceshipPlugin;
 use collision_detection::CollisionDetectionPlugin;
@@ -45,6 +47,7 @@ fn main() {
         .add_plugins(FieldPlugin)
         .add_plugins(CameraPlugin)
         .add_plugins(MenuPlugin)
+        .add_plugins(HudPlugin)
         // Game logic
         .add_plugins(AsteroidPlugin)
         .add_plugins(SpaceshipPlugin)

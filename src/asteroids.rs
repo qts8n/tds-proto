@@ -3,8 +3,9 @@ use std::ops::Range;
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::*;
 
-use crate::schedule::InGameSet;
 use crate::asset_loader::SceneAssets;
+use crate::schedule::InGameSet;
+use crate::hud::GameScoreChangeEvent;
 use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
 use crate::collision_detection::CollisionDamage;
@@ -104,6 +105,7 @@ fn explode_dead_asteroids(
     query: Query<(Entity, &Health), With<Asteroid>>,
     children_query: Query<&Children>,
     mesh_query: Query<&Handle<Mesh>>,
+    mut score_change_event_writer: EventWriter<GameScoreChangeEvent>,
 ) {
     for (entity, health) in query.iter() {
         if health.value > 0. {
@@ -126,6 +128,10 @@ fn explode_dead_asteroids(
                 DisposableEntity,
             ));
         }
+        score_change_event_writer.send(GameScoreChangeEvent {
+            score_delta: 1,
+            clear_score: false,
+        });
         let Some(asteroid_commands) = commands.get_entity(entity) else { continue };
         asteroid_commands.despawn_recursive();
     }
