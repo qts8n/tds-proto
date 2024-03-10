@@ -102,14 +102,16 @@ fn explode_dead_asteroids(
     mut commands: Commands,
     query: Query<(Entity, &Health), With<Asteroid>>,
     children_query: Query<&Children>,
+    mesh_query: Query<&Handle<Mesh>>,
 ) {
     for (entity, health) in query.iter() {
         if health.value > 0. {
             continue;
         }
-        // let Some(mut asteroid_commands) = commands.get_entity(entity) else { continue };
-        // asteroid_commands.remove::<(MovingObjectBundle, Health, CollisionDamage, Asteroid)>();
         for child in children_query.iter_descendants(entity) {
+            if mesh_query.get(child).is_err() {
+                continue;  // Not interested in meshless entities
+            }
             let Some(mut child_commands) = commands.get_entity(child) else { continue };
             let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
             child_commands.remove_parent_in_place();

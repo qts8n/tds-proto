@@ -48,7 +48,6 @@ pub struct MovingObjectBundle {
     pub sleeping: Sleeping,
     pub ccd: Ccd,
     pub active_events: ActiveEvents,
-    // pub model: SceneBundle,
 }
 
 
