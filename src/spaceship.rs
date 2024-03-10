@@ -61,7 +61,7 @@ impl Plugin for SpaceshipPlugin {
             ).chain().in_set(InGameSet::UserInput))
             .add_systems(Update, check_spaceship.in_set(InGameSet::EntityUpdates))
             .add_systems(OnExit(GameState::Menu), spawn_spaceship)
-            .add_systems(OnEnter(GameState::InGame), spawn_spaceship);
+            .add_systems(OnEnter(GameState::GameOver), spawn_spaceship);
     }
 }
 
