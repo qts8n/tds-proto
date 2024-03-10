@@ -8,7 +8,7 @@ const SPACESHIP_MODEL_PATHS: &'static [&'static str] = &[
     "Spaceship-4.glb#Scene0",
 ];
 const ASTEROID_MODEL_PATH: &'static [&'static str] = &[
-    "Planet-fractured.glb#Scene0",
+    "Planet-fractured-1.glb#Scene0",
     "Planet-fractured-2.glb#Scene0"
 ];
 const BULLET_MODEL_PATH: &'static [&'static str] = &[
