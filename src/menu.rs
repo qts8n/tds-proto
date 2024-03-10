@@ -87,8 +87,8 @@ fn setup_menu(mut commands: Commands, image_assets: Res<ImageAssets>) {
                 color: TEXT_COLOR,
                 ..default()
             }).with_style(Style {
-                    margin: UiRect::all(Val::Px(50.0)),
-                    ..default()
+                margin: UiRect::all(Val::Px(50.0)),
+                ..default()
             }));
 
             // Display two buttons for each action available from the main menu:
