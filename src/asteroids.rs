@@ -83,6 +83,7 @@ fn spawn_asteroid(
             collider: Collider::ball(RADIUS),
             ..default()
         },
+        LockedAxes::TRANSLATION_LOCKED_Y,
         SceneBundle {
             scene: scene_assets.get_random_asteroid(),
             transform: translation.get_transform(),

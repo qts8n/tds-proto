@@ -40,18 +40,18 @@ impl DirVector {
 
 
 #[derive(Bundle)]
-pub struct MovingObjectBundle {
+pub struct MovingObjectBundle<T: Component + Default> {
     pub velocity: Velocity,
     pub rigid_body: RigidBody,
     pub gravity_scale: GravityScale,
-    pub collider: Collider,
+    pub collider: T,
     pub sleeping: Sleeping,
     pub ccd: Ccd,
     pub active_events: ActiveEvents,
 }
 
 
-impl Default for MovingObjectBundle {
+impl Default for MovingObjectBundle<Collider> {
     fn default() -> Self {
         Self {
             // Custom default values
@@ -63,6 +63,41 @@ impl Default for MovingObjectBundle {
             // This is the part you usually want to change
             velocity: Velocity::default(),
             collider: Collider::default(),
+        }
+    }
+}
+
+impl Default for MovingObjectBundle<AsyncSceneCollider> {
+    fn default() -> Self {
+        Self {
+            // Custom default values
+            rigid_body: RigidBody::Dynamic,
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            collider: AsyncSceneCollider {
+                shape: Some(ComputedColliderShape::ConvexHull),
+                ..default()
+            },
+            // This is the part you usually want to change
+            velocity: Velocity::default(),
+        }
+    }
+}
+
+impl Default for MovingObjectBundle<AsyncCollider> {
+    fn default() -> Self {
+        Self {
+            // Custom default values
+            rigid_body: RigidBody::Dynamic,
+            gravity_scale: GravityScale(0.),
+            sleeping: Sleeping::disabled(),
+            ccd: Ccd::enabled(),
+            active_events: ActiveEvents::COLLISION_EVENTS,
+            // This is the part you usually want to change
+            velocity: Velocity::default(),
+            collider: AsyncCollider(ComputedColliderShape::ConvexHull),
         }
     }
 }

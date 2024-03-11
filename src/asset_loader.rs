@@ -2,9 +2,9 @@ use bevy::prelude::*;
 use rand::seq::IteratorRandom;
 
 const SPACESHIP_MODEL_PATHS: &'static [&'static str] = &[
-    "Spaceship-1.glb#Scene0",
-    "Spaceship-2.glb#Scene0",
-    "Spaceship-3.glb#Scene0",
+    // "Spaceship-1.glb#Scene0",
+    // "Spaceship-2.glb#Scene0",
+    // "Spaceship-3.glb#Scene0",
     "Spaceship-4.glb#Scene0",
 ];
 const ASTEROID_MODEL_PATH: &'static [&'static str] = &[

@@ -13,7 +13,6 @@ const SPACESHIP_SPAWN: Vec3 = Vec3::new(0., 0., -20.);
 const SPACESHIP_SPEED: f32 = 25.;
 const SPACESHIP_ROTATION_SPEED: f32 = 2.5;
 const SPACESHIP_ROLL_SPEED: f32 = 2.5;
-const SPACESHIP_RADIUS: f32 = 4.;
 const SPACESHIP_HEALTH: f32 = 100.;
 const SPACESHIP_COLLISION_DAMAGE: f32 = 70.;
 
@@ -70,10 +69,9 @@ impl Plugin for SpaceshipPlugin {
 fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
     let spaceship_transform = DirVector::new(SPACESHIP_SPAWN).get_transform();
     commands.spawn((
-        MovingObjectBundle {
+        MovingObjectBundle::<AsyncSceneCollider> {
             velocity: Velocity::linear(Vec3::ZERO),
             rigid_body: RigidBody::KinematicPositionBased,
-            collider: Collider::ball(SPACESHIP_RADIUS),
             ..default()
         },
         SceneBundle {
@@ -87,6 +85,37 @@ fn spawn_spaceship(mut commands: Commands, scene_assets: Res<SceneAssets>) {
         DisposableEntity,
     ));
 }
+
+
+// fn add_spaceship_mesh_collider(
+//     mut commands: Commands,
+//     query: Query<Entity, With<Spaceship>>,
+//     children_query: Query<&Children>,
+//     mesh_query: Query<&Handle<Mesh>>,
+//     meshes: Res<Assets<Mesh>>,
+// ) {
+//     let Ok(spaceship) = query.get_single() else { return };
+
+//     let mut possible_collider: Option<Collider> = None;
+//     for child in children_query.iter_descendants(spaceship) {
+//         let Some(mut child_commands) = commands.get_entity(child) else { continue };
+//         child_commands.log_components();
+//         let Ok(mesh_handle) = mesh_query.get(child) else { continue };
+//         println!("GOT MESH HANDLE !!!");
+//         let Some(mesh) = meshes.get(mesh_handle.id()) else { continue };
+//         println!("GOT MESH !!!");
+//         possible_collider = Collider::from_bevy_mesh(mesh, &ComputedColliderShape::TriMesh);
+//         if possible_collider.is_some() {
+//             break;
+//         }
+//     }
+
+//     let Some(mut spaceship_commands) = commands.get_entity(spaceship) else { return };
+//     let Some(collider) = possible_collider else { return };
+//     spaceship_commands
+//         .remove::<Collider>()
+//         .insert(collider);
+// }
 
 
 fn spaceship_movement_controls(
