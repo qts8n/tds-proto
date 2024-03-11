@@ -9,13 +9,13 @@ use crate::hud::GameScoreChangeEvent;
 use crate::movement::{DirVector, MovingObjectBundle};
 use crate::health::Health;
 use crate::collision_detection::CollisionDamage;
-use crate::despawn_routine::DisposableEntity;
+use crate::despawn_routine::{DESPAWN_DISTANCE, DisposableEntity};
 
-const VELOCITY_SCALAR: f32 = 10.;
+const VELOCITY_SCALAR: f32 = 20.;
+const VELOCITY_DEST_RADIUS_RANGE: Range<f32> = 0.0..50.0;
 
-const SPAWN_RANGE_X: Range<f32> = -25.0..25.0;
-const SPAWN_RANGE_Z: Range<f32> = 0.0..25.0;
-const SPAWN_SECONDS: f32 = 1.;
+const SPAWN_RANGE_RADIUS: Range<f32> = 81.0..(DESPAWN_DISTANCE - 1.);
+const SPAWN_SECONDS: f32 = 0.5;
 
 const ROTATION_SPEED: f32 = 2.5;
 const RADIUS: f32 = 2.5;
@@ -72,8 +72,10 @@ fn spawn_asteroid(
     if !spawn_timer.timer.just_finished() {
         return;
     }
-    let translation = DirVector::rng_range(SPAWN_RANGE_X, SPAWN_RANGE_Z);
-    let velocity = DirVector::rng_unit(Some(VELOCITY_SCALAR));
+
+    let translation = DirVector::rng_polar_range(SPAWN_RANGE_RADIUS);
+    let destination = DirVector::rng_polar_range(VELOCITY_DEST_RADIUS_RANGE);
+    let velocity = DirVector::new((destination.value - translation.value).normalize_or_zero() * VELOCITY_SCALAR);
 
     commands.spawn((
         MovingObjectBundle {

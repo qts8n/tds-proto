@@ -4,7 +4,7 @@ use crate::schedule::InGameSet;
 use crate::state::GameState;
 use crate::health::Health;
 
-const DESPAWN_DISTANCE: f32 = 100.;
+pub const DESPAWN_DISTANCE: f32 = 100.;
 
 
 #[derive(Component, Debug)]

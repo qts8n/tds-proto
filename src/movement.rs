@@ -24,13 +24,13 @@ impl DirVector {
         .normalize_or_zero() * n.unwrap_or(1.))
     }
 
-    pub fn rng_range(x_range: Range<f32>, z_range: Range<f32>) -> Self {
+    pub fn rng_polar_range(r_range: Range<f32>) -> Self {
         let mut rng = rand::thread_rng();
-        Self::new(Vec3::new(
-            rng.gen_range(x_range),
-            0.,
-            rng.gen_range(z_range),
-        ))
+
+        let mut dir_vector = Self::rng_unit(None);
+        dir_vector.value *= rng.gen_range(r_range);
+
+        dir_vector
     }
 
     pub fn get_transform(&self) -> Transform {
